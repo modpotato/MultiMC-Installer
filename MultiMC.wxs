@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <!-- Define product information -->
+    <Product Id="*" 
+             Name="MultiMC" 
+             Language="1033" 
+             Version="1.0.0" 
+             Manufacturer="MultiMC Contributors" 
+             UpgradeCode="E394B061-B4A5-4692-ABD9-B72BABFABD1A">
+        
+        <!-- Define package information -->
+        <Package InstallerVersion="200" 
+                 Compressed="yes" 
+                 InstallScope="perMachine" 
+                 Description="Installer for MultiMC Minecraft launcher"
+                 Comments="MultiMC is a free, open source launcher for Minecraft" />
+        
+        <!-- Use WiX built-in UI -->
+        <UIRef Id="WixUI_InstallDir" />
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+        
+        <!-- Allow upgrades and prevent downgrades -->
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        
+        <!-- Define the installation media -->
+        <Media Id="1" Cabinet="MultiMC.cab" EmbedCab="yes" />
+        
+        <!-- Define the directory structure -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="MultiMC">
+                    <!-- The actual files will be added here during the build process -->
+                </Directory>
+            </Directory>
+            
+            <!-- Add Start Menu shortcut -->
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="MultiMC"/>
+            </Directory>
+            
+            <!-- Add Desktop shortcut -->
+            <Directory Id="DesktopFolder" Name="Desktop" />
+        </Directory>
+        
+        <!-- Define the components to install -->
+        <Feature Id="ProductFeature" Title="MultiMC" Level="1">
+            <ComponentGroupRef Id="MultiMCFiles" />
+            <ComponentRef Id="ApplicationShortcut" />
+            <ComponentRef Id="DesktopShortcut" />
+        </Feature>
+        
+        <!-- Define shortcuts -->
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="*">
+                <Shortcut Id="ApplicationStartMenuShortcut" 
+                          Name="MultiMC" 
+                          Description="Minecraft launcher with advanced features"
+                          Target="[INSTALLFOLDER]MultiMC.exe"
+                          WorkingDirectory="INSTALLFOLDER"/>
+                <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+                <RegistryValue Root="HKCU" Key="Software\MultiMC" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+        
+        <DirectoryRef Id="DesktopFolder">
+            <Component Id="DesktopShortcut" Guid="*">
+                <Shortcut Id="ApplicationDesktopShortcut" 
+                          Name="MultiMC" 
+                          Description="Minecraft launcher with advanced features"
+                          Target="[INSTALLFOLDER]MultiMC.exe"
+                          WorkingDirectory="INSTALLFOLDER"/>
+                <RegistryValue Root="HKCU" Key="Software\MultiMC" Name="desktop_shortcut" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+        
+        <!-- License and custom UI settings -->
+        <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+        <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
+    </Product>
+</Wix>
