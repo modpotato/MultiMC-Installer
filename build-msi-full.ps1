@@ -103,6 +103,13 @@ Copy-Item -Path ".\MultiMC.wxs" -Destination $TempDir
 $wxsPath = Join-Path $TempDir "MultiMC.wxs"
 (Get-Content $wxsPath) -replace 'Version="1.0.0"', "Version=`"$Version`"" | Set-Content $wxsPath
 
+# First, create a working directory for processing files
+$workingDir = Join-Path $TempDir "MultiMCFiles"
+New-Item -ItemType Directory -Force -Path $workingDir | Out-Null
+
+# Copy all files from the MultiMC directory to the working directory
+Copy-Item -Path "$($multiMCDir.FullName)\*" -Destination $workingDir -Recurse -Force
+
 # Change to the temp directory for WiX commands
 Push-Location $TempDir
 
@@ -113,17 +120,24 @@ try {
         Write-Host $_.FullName
     }
     
-    # First, create a working directory for processing files
-    $workingDir = Join-Path $TempDir "MultiMCFiles"
-    New-Item -ItemType Directory -Force -Path $workingDir | Out-Null
-    
-    # Copy all files from the MultiMC directory to the working directory
-    Copy-Item -Path "$($multiMCDir.FullName)\*" -Destination $workingDir -Recurse -Force
-    
     # Generate the file list using heat
     Write-Host "Generating file list with heat..."
-    $heatArgs = "dir", "`"$workingDir`"", "-cg", "MultiMCFiles", "-dr", "INSTALLFOLDER", 
-               "-gg", "-srd", "-ke", "-sfrag", "-var", "var.SourceDir", "-out", "filelist.wxs"
+    $heatArgs = @(
+        "dir"
+        """$workingDir"""
+        "-cg"
+        "MultiMCFiles"
+        "-dr"
+        "INSTALLFOLDER"
+        "-gg"
+        "-srd"
+        "-ke"
+        "-sfrag"
+        "-var"
+        "var.SourceDir"
+        "-out"
+        "filelist.wxs"
+    )
     $heatProc = Start-Process -FilePath "heat.exe" -ArgumentList $heatArgs -NoNewWindow -Wait -PassThru
     if ($heatProc.ExitCode -ne 0) {
         Write-Error "Heat exited with code $($heatProc.ExitCode)"
@@ -135,7 +149,11 @@ try {
     
     # Compile the WiX source files
     Write-Host "Compiling WiX source files with candle..."
-    $candleArgs = "MultiMC.wxs", "filelist.wxs", "-dSourceDir=$workingDir"
+    $candleArgs = @(
+        "MultiMC.wxs"
+        "filelist.wxs"
+        "-dSourceDir=""$workingDir"""
+    )
     $candleProc = Start-Process -FilePath "candle.exe" -ArgumentList $candleArgs -NoNewWindow -Wait -PassThru
     if ($candleProc.ExitCode -ne 0) {
         Write-Error "Candle exited with code $($candleProc.ExitCode)"
@@ -144,8 +162,17 @@ try {
     # Link the compiled objects into an MSI
     Write-Host "Linking with light to create MSI..."
     $msiPath = Join-Path $OutputDir "MultiMC-$Version.msi"
-    $lightArgs = "-ext", "WixUIExtension", "MultiMC.wixobj", "filelist.wixobj", 
-                "-out", "`"$msiPath`"", "-sval", "-b", "`"$TempDir`""
+    $lightArgs = @(
+        "-ext"
+        "WixUIExtension"
+        "MultiMC.wixobj"
+        "filelist.wixobj"
+        "-out"
+        """$msiPath"""
+        "-sval"
+        "-b"
+        """$TempDir"""
+    )
     $lightProc = Start-Process -FilePath "light.exe" -ArgumentList $lightArgs -NoNewWindow -Wait -PassThru
     if ($lightProc.ExitCode -ne 0) {
         Write-Error "Light exited with code $($lightProc.ExitCode)"
@@ -165,8 +192,7 @@ try {
 # Clean up temp files if successful
 if (Test-Path $msiPath) {
     Write-Host "Cleaning up temporary files..."
-    # Uncomment the following line to remove temp files after successful build
-    # Remove-Item -Path $TempDir -Recurse -Force
+    Remove-Item -Path $TempDir -Recurse -Force
 }
 
 Write-Host "Build completed successfully."
