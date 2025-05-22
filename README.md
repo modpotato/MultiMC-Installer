@@ -8,20 +8,14 @@ A comprehensive installer for the popular Minecraft instance manager MultiMC. ht
 
 #### [Latest Release](https://github.com/modpotato/MultiMC-Installer/releases/latest)
 
-## Installer Types
-
-This repository provides two types of installers:
-1. **EXE Installer** - Created with Inno Setup
-2. **MSI Installer** - Created with WiX Toolset (New!)
-
 ## Setup Guide
 
-1. Download the installer (EXE or MSI) from the link above.
+1. Download the install from the link above.
 2. Run the installer executable.
 3. Follow the on-screen instructions to complete the installation process.
 4. Once installed, launch MultiMC from your Start menu or desktop shortcut.
 
-## Automated Builds
+## Automated Builds (requires forked repo)
 
 This repository includes a GitHub Action workflow that can automatically build and release the MSI installer. To trigger a new build:
 
