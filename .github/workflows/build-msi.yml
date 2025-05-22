@@ -1,10 +1,10 @@
-name: Build and Release MSI Installer
+name: Build MSI Installer
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number for the release (e.g., 1.0.0)'
+        description: 'Version number for the installer (e.g., 1.0.0)'
         required: true
         default: '1.0.0'
       download_url:
@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up WiX Toolset
         run: |
@@ -40,34 +40,9 @@ jobs:
           .\build-msi-full.ps1 -DownloadUrl "${{ github.event.inputs.download_url }}" -Version "${{ github.event.inputs.version }}"
         shell: pwsh
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: MultiMC Installer v${{ github.event.inputs.version }}
-          draft: false
-          prerelease: false
-          body: |
-            MultiMC Installer version ${{ github.event.inputs.version }}
-            
-            This release contains an MSI installer for MultiMC, built from:
-            ${{ github.event.inputs.download_url }}
-            
-            ### Installation Instructions
-            1. Download the MSI installer
-            2. Run the installer
-            3. Follow the on-screen instructions
-            4. Launch MultiMC from your Start menu or desktop shortcut
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/MultiMC-${{ github.event.inputs.version }}.msi
-          asset_name: MultiMC-${{ github.event.inputs.version }}.msi
-          asset_content_type: application/x-msi
+          name: MultiMC-Installer-${{ github.event.inputs.version }}
+          path: ./build/MultiMC-${{ github.event.inputs.version }}.msi
+          retention-days: 90

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
     <!-- Define product information -->
     <Product Id="*" 
              Name="MultiMC" 
@@ -11,13 +12,14 @@
         <!-- Define package information -->
         <Package InstallerVersion="200" 
                  Compressed="yes" 
-                 InstallScope="perMachine" 
+                 InstallScope="perUser"
                  Description="Installer for MultiMC Minecraft launcher"
                  Comments="MultiMC is a free, open source launcher for Minecraft" />
         
         <!-- Use WiX built-in UI -->
         <UIRef Id="WixUI_InstallDir" />
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+        <Property Id="INSTALLFOLDER_DEFAULT" Value="[LocalAppDataFolder]MultiMC" />
         
         <!-- Allow upgrades and prevent downgrades -->
         <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -27,7 +29,7 @@
         
         <!-- Define the directory structure -->
         <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="ProgramFilesFolder">
+            <Directory Id="LocalAppDataFolder">
                 <Directory Id="INSTALLFOLDER" Name="MultiMC">
                     <!-- The actual files will be added here during the build process -->
                 </Directory>
@@ -56,7 +58,8 @@
                           Name="MultiMC" 
                           Description="Minecraft launcher with advanced features"
                           Target="[INSTALLFOLDER]MultiMC.exe"
-                          WorkingDirectory="INSTALLFOLDER"/>
+                          WorkingDirectory="INSTALLFOLDER">
+                </Shortcut>
                 <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
                 <RegistryValue Root="HKCU" Key="Software\MultiMC" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
             </Component>
@@ -68,7 +71,8 @@
                           Name="MultiMC" 
                           Description="Minecraft launcher with advanced features"
                           Target="[INSTALLFOLDER]MultiMC.exe"
-                          WorkingDirectory="INSTALLFOLDER"/>
+                          WorkingDirectory="INSTALLFOLDER">
+                </Shortcut>
                 <RegistryValue Root="HKCU" Key="Software\MultiMC" Name="desktop_shortcut" Type="integer" Value="1" KeyPath="yes"/>
             </Component>
         </DirectoryRef>

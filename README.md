@@ -28,7 +28,7 @@ This repository includes a GitHub Action workflow that can automatically build a
 The workflow will:
 - Download the specified MultiMC version
 - Build an MSI installer
-- Create a new GitHub release with the installer
+- Upload an artifact to the workflows run when finished
 
 ## Todo
 

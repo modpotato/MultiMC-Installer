@@ -170,6 +170,8 @@ try {
         "MultiMC.wxs"
         "filelist.wxs"
         "-dSourceDir=""$workingDir"""
+        "-ext"
+        "WixUtilExtension"
     )
     $candleProc = Start-Process -FilePath "candle.exe" -ArgumentList $candleArgs -NoNewWindow -Wait -PassThru
     if ($candleProc.ExitCode -ne 0) {
@@ -182,6 +184,8 @@ try {
     $lightArgs = @(
         "-ext"
         "WixUIExtension"
+        "-ext"
+        "WixUtilExtension"
         "MultiMC.wixobj"
         "filelist.wixobj"
         "-out"
