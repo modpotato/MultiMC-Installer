@@ -74,7 +74,7 @@
         </DirectoryRef>
         
         <!-- License and custom UI settings -->
-        <WixVariable Id="WixUILicenseRtf" Value="LICENSE" />
+        <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
         <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
         <WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
     </Product>

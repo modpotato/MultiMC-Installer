@@ -67,9 +67,26 @@ if (-not $multiMCDir) {
     }
 }
 
-# Create license file from project LICENSE
-$licensePath = Join-Path $TempDir "LICENSE"
-Copy-Item -Path ".\LICENSE" -Destination $licensePath
+# Create license file from MultiMC's GitHub repository
+$licensePath = Join-Path $TempDir "LICENSE.rtf"
+$multiMCLicenseUrl = "https://raw.githubusercontent.com/MultiMC/Launcher/refs/heads/develop/COPYING.md"
+$multiMCLicenseTempPath = Join-Path $TempDir "COPYING.md"
+
+Write-Host "Downloading MultiMC license from GitHub..."
+try {
+    Invoke-WebRequest -Uri $multiMCLicenseUrl -OutFile $multiMCLicenseTempPath -ErrorAction Stop
+    $licenseText = Get-Content -Path $multiMCLicenseTempPath -Raw
+    $licenseRtf = @"
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 $($licenseText -replace "\r\n|\n", "\par ")\par
+}
+"@
+    Set-Content -Path $licensePath -Value $licenseRtf
+} catch {
+    Write-Error "Failed to download MultiMC license from GitHub: $_"
+    exit 1
+}
 
 # Create placeholder images for the installer
 Write-Host "Creating UI bitmaps for the installer..."
