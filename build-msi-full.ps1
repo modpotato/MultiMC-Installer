@@ -1,8 +1,8 @@
 # Full PowerShell script to build MultiMC MSI installer
 param (
     [string]$DownloadUrl = "https://files.multimc.org/downloads/mmc-develop-win32.zip",
-    [string]$OutputDir = ".\build",
-    [string]$TempDir = ".\temp",
+    [string]$OutputDir = (Join-Path $PSScriptRoot "build"),
+    [string]$TempDir = (Join-Path $PSScriptRoot "temp"),
     [string]$Version = "1.0.0",
     [switch]$InstallWix = $false
 )
@@ -67,16 +67,9 @@ if (-not $multiMCDir) {
     }
 }
 
-# Create a simple license file
-$licensePath = Join-Path $TempDir "License.rtf"
-@"
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
-\pard\sa200\sl276\slmult1\f0\fs22\lang9 MultiMC Launcher License\par
-MultiMC is licensed under the Apache License, Version 2.0.\par
-You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0\par
-}
-"@ | Out-File -FilePath $licensePath -Encoding utf8
+# Create license file from project LICENSE
+$licensePath = Join-Path $TempDir "LICENSE"
+Copy-Item -Path ".\LICENSE" -Destination $licensePath
 
 # Create placeholder images for the installer
 Write-Host "Creating UI bitmaps for the installer..."
